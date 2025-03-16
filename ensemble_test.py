@@ -1,33 +1,4 @@
 #!/bin/bash
-#
-#SBATCH -J test_gpu                 # job name
-#SBATCH --nodes=1                   # request to run on 1 node
-#SBATCH -p free-gpu                 # request free gpu partition
-#SBATCH --gres=gpu:1                # request 1 gpu
-#SBATCH -t 00:01:00                 # set time limit 1 Minute
-#SBATCH --tasks-per-node=1          # request 1 task per node
-#SBATCH --cpus-per-task=1           # request 1 cpu per task
-#SBATCH --mem=4gb                   # request 16Gb of memory
-#SBATCH --account cs175b_class_gpu
-#SBATCH --output %x.%A.out
-
-module load anaconda
-source ~/init_conda.sh
-conda activate pytorch
-nvidia-smi
-python test_gpu.pyimport sys
-from contextlib import contextmanager
-
-@contextmanager
-def redirect_stdout_to_file(filename):
-    ''' Context manager to redirect stdout to a file '''
-    original_stdout = sys.stdout
-    with open(filename, 'w') as f:
-        sys.stdout = f
-        try:
-            yield
-        finally:
-            sys.stdout = original_stdout
 
 import numpy as np
 import pandas as pd
@@ -321,10 +292,4 @@ scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2, ver
 
 import time
 
-with redirect_stdout_to_file('debug_output.txt'):
-    start_time = time.time()
-    train(model, 'resnet18', 1, train_loader, valid_loader, criterion, optimizer, steps_per_epoch=10)
-    end_time = time.time()
-    print(f'Total time using {device} is {end_time - start_time} seconds')
-
-# train(model, 'resnet18', 1, train_loader, valid_loader, criterion, optimizer, steps_per_epoch=4)
+train(model, 'resnet18', 1, train_loader, valid_loader, criterion, optimizer, steps_per_epoch=4)
