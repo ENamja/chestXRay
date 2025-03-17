@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+#SBATCH -J resnet18-multi           # job name
+#SBATCH --nodes=1                   # request to run on 1 node
+#SBATCH -p gpu                      # request free gpu partition
+#SBATCH --gres=gpu:1                # request 1 gpu
+#SBATCH -t 24:00:00                 # set time limit 24 hours
+#SBATCH --tasks-per-node=1          # request 1 task per node
+#SBATCH --cpus-per-task=1           # request 1 cpu per task
+#SBATCH --mem=16gb                  # request 16Gb of memory
+#SBATCH --account cs175b_class_gpu
+#SBATCH --output %x.%A.out
+
+module load anaconda
+source ~/init_conda.sh
+conda activate pytorch
+nvidia-smi
+python resnet18-multi.py
