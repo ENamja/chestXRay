@@ -3,9 +3,6 @@
 
 # ### Modules
 
-# In[2]:
-
-
 import numpy as np
 import pandas as pd
 import os
@@ -25,17 +22,12 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 
 
-# In[3]:
-
-
 device_type = "cuda" if torch.cuda.is_available() else "cpu"
 device = torch.device(device_type)
 print(f"Running on device: {device}")
 
 # change sample size depending on model complexity
 SAMPLE_SIZE = 50000
-
-# In[4]:
 
 
 all_xray_df = pd.read_csv('data/Data_Entry_2017.csv')
@@ -46,8 +38,6 @@ all_xray_df['path'] = all_xray_df['Image Index'].map(all_image_paths.get)
 all_xray_df['Patient Age'] = all_xray_df['Patient Age'].map(lambda x: int(x))
 all_xray_df.sample(3)
 
-
-# In[5]:
 
 # ignore other features not important (eg image size)
 selected_features = ['Follow-up #', 'Patient Age', 'Patient Gender', 'View Position']
@@ -82,7 +72,6 @@ numeric_labels = encoder_labels.transform(labels)
 # import sys
 # sys.exit(0)
 
-# In[6]:
 
 # extends pytorchs dataset, need __getitem__ and __len__
 # consider transform/target_transform methods
@@ -109,11 +98,6 @@ class ImagesDataset(Dataset):
         elif self.mode == 'test':
             x = self.transforms(pic)
             return x, self.files[index]
-
-
-# In[7]:
-
-# In[1]:
 
 
 # train_dataloader must be torch.utils.data.DataLoader, same for val
@@ -203,8 +187,6 @@ def training(model, model_name, num_epochs, train_dataloader, val_dataloader, cr
     return model
 
 
-# In[ ]:
-
 # apply transformations for training
 transforms_train = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -242,7 +224,7 @@ model.fc = nn.Sequential(
 
 
 # load data
-batch_size = 64 # base 2?
+batch_size = 128 # base 2?
 train_size = int(0.8 * len(train_dataset))
 val_size = len(train_dataset) - train_size
 train_subset, val_subset = torch.utils.data.random_split(train_dataset, [train_size, val_size])
@@ -253,10 +235,10 @@ val_dataloader = DataLoader(val_subset, batch_size=batch_size, shuffle=False)
 # define params
 criterion = nn.CrossEntropyLoss()
 # optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9, weight_decay=0.0001)
 
 # train model
-num_epochs = 4
+num_epochs = 50
 trained_model = training(
     model=model,
     model_name=model_name,
@@ -268,10 +250,3 @@ trained_model = training(
 )
 
 print("\ntraining complete")
-
-
-# In[ ]:
-
-
-
-
